@@ -4,6 +4,7 @@ import android.content.ContentValues
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
+import com.google.android.material.tabs.TabLayout
 
 class NotesDatabaseHelper(context: Context): SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
     override fun onCreate(db: SQLiteDatabase?) {
@@ -20,6 +21,16 @@ class NotesDatabaseHelper(context: Context): SQLiteOpenHelper(context, DATABASE_
         db?.execSQL(dropTableQuery)
         onCreate(db)
     }
+
+    companion object {
+        private const val DATABASE_NAME = "notesapp.db"
+        private const val DATABASE_VERSION = 1
+        private const val TABLE_NAME = "allnotes"
+        private const val COLUMN_ID = "id"
+        private const val COLUMN_TITLE = "title"
+        private const val COLUMN_CONTENT = "content"
+    }
+
     fun insertNote(note: Note) {
         val db = writableDatabase
         val values = ContentValues().apply {
@@ -30,12 +41,21 @@ class NotesDatabaseHelper(context: Context): SQLiteOpenHelper(context, DATABASE_
         db.close()
     }
 
-    companion object {
-        private const val DATABASE_NAME = "notesapp.db"
-        private const val DATABASE_VERSION = 1
-        private const val TABLE_NAME = "allnotes"
-        private const val COLUMN_ID = "id"
-        private const val COLUMN_TITLE = "title"
-        private const val COLUMN_CONTENT = "content"
+    fun getAllNotes(): List<Note> {
+        val notesList = mutableListOf<Note>()
+        val db = readableDatabase
+        val query = "SELECT * FROM $TABLE_NAME"
+        val cursor = db.rawQuery(query, null)
+        while(cursor.moveToNext()) {
+            val id =  cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_ID))
+            val title = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_TITLE))
+            val content = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_CONTENT))
+            val note = Note(id, title, content)
+            notesList.add(note)
+            }
+        cursor.close()
+        db.close()
+        return notesList
     }
+
 }
