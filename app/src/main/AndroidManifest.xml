@@ -12,6 +12,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Finals_DatabaseRamos201">
         <activity
+            android:name=".UpdateNoteActivity"
+            android:exported="false" />
+        <activity
             android:name=".AddNoteActivity"
             android:exported="false" />
         <activity

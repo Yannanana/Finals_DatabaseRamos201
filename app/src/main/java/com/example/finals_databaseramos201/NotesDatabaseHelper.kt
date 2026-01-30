@@ -1,9 +1,11 @@
 package com.example.finals_databaseramos201
 
+import android.R
 import android.content.ContentValues
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
+import androidx.core.content.contentValuesOf
 import com.google.android.material.tabs.TabLayout
 
 class NotesDatabaseHelper(context: Context): SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
@@ -56,6 +58,38 @@ class NotesDatabaseHelper(context: Context): SQLiteOpenHelper(context, DATABASE_
         cursor.close()
         db.close()
         return notesList
+    }
+    fun updatenote(note: Note) {
+        val db = writableDatabase
+        val values = ContentValues().apply {
+            put(COLUMN_TITLE, note.title)
+            put(COLUMN_CONTENT,note.content)
+
+        }
+        val whereClause = "$COLUMN_ID = ?"
+        val whereArgs = arrayOf(note.id.toString())
+        db.update(TABLE_NAME, values, whereClause, whereArgs)
+        db.close()
+    }
+    fun getNoteByID(noteId:Int): Note {
+        val db = readableDatabase
+        val query = "SELECT * FROM $TABLE_NAME WHERE $COLUMN_ID=$noteId"
+        val cursor = db.rawQuery(query, null)
+        cursor.moveToFirst()
+        val id = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_ID))
+        val title  = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_TITLE))
+        val content = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_CONTENT))
+        cursor.close()
+        db.close()
+        return Note(id, title, content)
+    }
+
+    fun deleteNote(noteId : Int) {
+        val db = writableDatabase
+        val whereClause = "$COLUMN_ID = ?"
+        val whereArgs = arrayOf(noteId.toString())
+        db.delete(TABLE_NAME, whereClause, whereArgs)
+        db.close()
     }
 
 }
